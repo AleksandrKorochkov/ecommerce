@@ -26,7 +26,6 @@ async def all_reviews(db: Annotated[AsyncSession, Depends(get_db)]):
 
     return result.all()
 
-
 @router.post('/create')
 async def add_review(db: Annotated[AsyncSession, Depends(get_db)], create_review: CreateReviews, 
                                create_rating: CreateRaitings, product_slug: str, get_user: Annotated[dict, Depends(get_current_user)]):
