@@ -14,6 +14,8 @@ router = APIRouter(prefix="/rating_reviews", tags=["rating_reviews"])
 
 @router.get("/")
 async def all_reviews(db: Annotated[AsyncSession, Depends(get_db)]):
+    product = await db.scalars(select(Product))
+    
 
     rat_rev = await db.scalars(select(Raview).where(Raview.is_active == True))
 
@@ -24,7 +26,9 @@ async def all_reviews(db: Annotated[AsyncSession, Depends(get_db)]):
     # query = await db.scalar(select(Raview).options(joinedload(Raview.raiting)))
     result = await db.scalars(select(Raiting).options(joinedload(Raiting.reviews)))
 
-    return result.all()
+    return (((i.reviews.comment if i.reviews else None), 
+             (i.grade if i.grade else None)) 
+            for i in result.all())
 
 @router.post('/create')
 async def add_review(db: Annotated[AsyncSession, Depends(get_db)], create_review: CreateReviews, 
@@ -97,12 +101,9 @@ async def products_reviews(db: Annotated[AsyncSession, Depends(get_db)], slag_pr
     # return res
 
 
-    return product.name, ((i.comment, i.raiting.grade) 
-                          if i.raiting 
-                          else (i.comment, None)
-                          for i in reviews)
-    
-    
+    return product.name, (((i.comment if i else None),
+                           i.raiting.grade if i.raiting else None)
+                            for i in reviews)
 
     # reviews_with_ratings = await db.execute(select(rewiew))
 

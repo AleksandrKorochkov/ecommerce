@@ -65,7 +65,6 @@ async def product_by_category(db: Annotated[AsyncSession, Depends(get_db)] ,cate
     
     subcategory = await db.scalars(select(Category).where(Category.parent_id == category.id))
     category_and_subcategory = [category.id] + [i.id for i in subcategory.all()]
-    print(category_and_subcategory)
     products_category = await db.scalars(select(Product).where(Product.category_id.in_(category_and_subcategory), Product.is_active == True,
                                                                Product.stock > 0))
 
